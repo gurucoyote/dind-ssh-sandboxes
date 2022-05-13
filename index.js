@@ -29,6 +29,10 @@ new ssh2.Server(
     console.log("Client connected!");
 
     client
+      .on("error", (e) => {
+        console.log("error caught");
+        console.error(e);
+      })
       .on("authentication", (ctx) => {
         try {
           console.log("authenticating");
