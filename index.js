@@ -86,6 +86,8 @@ new ssh2.Server(
                 hostname: username,
                 // name: username, // TODO make sure this container name doesn't already exist
                 privileged: true,
+                Binds: [`${process.cwd()}/home/${username}:/home/${username}`],
+                WorkingDir: `/home/${username}`,
                 OpenStdin: true,
                 Tty: true,
               },
