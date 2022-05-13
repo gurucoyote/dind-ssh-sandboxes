@@ -82,7 +82,7 @@ new ssh2.Server(
             docker.createContainer(
               {
                 Cmd: ["/bin/ash", "-l"],
-                Image: "dwc",
+                Image: "dind-sandbox",
                 hostname: username,
                 // name: username, // TODO make sure this container name doesn't already exist
                 privileged: true,
