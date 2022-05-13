@@ -1,0 +1,4 @@
+#exclude everything first
+*
+# re-enable what we want 
+ !dindWithShell.sh

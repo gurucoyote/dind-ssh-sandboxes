@@ -1,0 +1,17 @@
+{
+  "name": "didn-ssh-sandboxes",
+  "description": "SSH server that creates a new, isolated docker container for each connection. Containers are disposed on disconnect",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "ssh2": "0.5.0",
+    "dockerode": "2.2.10",
+    "node-rsa": "0.3.2"
+  }
+}
