@@ -15,7 +15,7 @@ const docker = new Docker();
 // generate with ssh-keygen -m PEM -t rsa -b 2048
 const privKey = fs.readFileSync("host.key");
 
-const TIMEOUT = 100000;
+const TIMEOUT = 60000 * 30;
 let username = "me";
 const port = 2222;
 
