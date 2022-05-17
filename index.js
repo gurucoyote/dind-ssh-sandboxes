@@ -26,8 +26,12 @@ new ssh2.Server(
     ident: "ssh-sandboxes",
   },
   (client) => {
-    console.log("Client connected!");
-
+    console.log(
+      "Client connected!",
+      client._sock._peername.address,
+      ":",
+      client._sock._peername.port
+    );
     client
       .on("error", (e) => {
         console.log("error caught");
@@ -37,9 +41,7 @@ new ssh2.Server(
         try {
           console.log("authenticating");
           // Blindly accept all connections. Only one per IP address allowed, though.
-          // console.log('accepting');
           ctx.accept();
-          console.log(ctx.username);
           username = ctx.username;
         } catch (e) {
           console.error(e);
@@ -157,5 +159,5 @@ new ssh2.Server(
       });
   }
 ).listen(port, "0.0.0.0", function () {
-  console.log("Listening on port " + this.address().port);
+  console.log("Listening on port " + this.address().port, this.address());
 });
