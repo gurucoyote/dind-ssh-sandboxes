@@ -154,7 +154,7 @@ new ssh2.Server(
                 console.log(stream.name, "left the system,");
               }
               // console.log("Stream disconnected!");
-              console.log(users.length, "users left");
+              console.log(users.length, "users remaining");
               cleanupStream();
             });
           });

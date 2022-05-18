@@ -10,8 +10,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "ssh2": "0.5.0",
     "dockerode": "2.2.10",
-    "node-rsa": "0.3.2"
+    "ssh2": "^1.10.0"
   }
 }
