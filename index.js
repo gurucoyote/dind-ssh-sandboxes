@@ -34,17 +34,16 @@ new ssh2.Server(
     );
     client
       .on("error", (e) => {
-        console.log("error caught");
-        console.error(e);
+        console.error("error caught", e);
       })
       .on("authentication", (ctx) => {
         try {
           console.log("authenticating");
-          // Blindly accept all connections. Only one per IP address allowed, though.
+          // Blindly accept all connections
           ctx.accept();
           username = ctx.username;
         } catch (e) {
-          console.error(e);
+          console.error("auth error: ", e);
         }
       })
       .on("ready", () => {
@@ -93,14 +92,14 @@ new ssh2.Server(
                 OpenStdin: true,
                 Tty: true,
               },
-              function (err, newContainer) {
+              function (err, theContainer) {
                 if (err) {
                   console.log(err);
                   closeStream();
                   return;
                 }
 
-                container = newContainer;
+                container = theContainer;
                 container.attach(
                   {
                     stream: true,
@@ -109,8 +108,7 @@ new ssh2.Server(
                     stderr: true,
                   },
                   function (err, ttyStream) {
-                    console.log("Attached to container " + newContainer.id);
-
+                    console.log("Attached to container " + theContainer.id);
                     // Attach output streams to client stream.
                     ttyStream.pipe(stream);
 
@@ -118,13 +116,13 @@ new ssh2.Server(
                     stream.pipe(ttyStream);
 
                     // Start the container
-                    newContainer.start((err, data) => {
+                    theContainer.start((err, _) => {
                       if (err) {
                         console.error("Unable to start container", err);
                         closeStream();
                         return;
                       }
-                      console.log("Container started!");
+                      // console.log("Container started!");
                     });
                   }
                 );
@@ -136,7 +134,7 @@ new ssh2.Server(
               stream.close();
             };
 
-            stream.on("data", function (chunk) {
+            stream.on("data", function (_) {
               // Reset timeout
               if (stream.timeoutId) {
                 clearTimeout(stream.timeoutId);
