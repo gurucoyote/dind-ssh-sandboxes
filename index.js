@@ -1,23 +1,21 @@
 import fs from "fs";
-import util from "util";
-import EventEmitter from "events";
+// import util from "util";
+// import EventEmitter from "events";
 
 import Docker from "dockerode";
 import ssh2 from "ssh2";
-import NodeRSA from "node-rsa";
+// import NodeRSA from "node-rsa";
 
 const docker = new Docker();
 
-// Generate a temporary, throwaway private key.
-// const key = new NodeRSA({b: 1024})
-// const privKey = key.exportKey('pkcs1-private-pem')
-// rather read the same key each time
 // generate with ssh-keygen -m PEM -t rsa -b 2048
 const privKey = fs.readFileSync("host.key");
 
 const TIMEOUT = 60000 * 30;
-let username = "me";
+const defaultUsername = "me";
 const port = 2222;
+
+let users = [];
 
 new ssh2.Server(
   {
@@ -32,13 +30,14 @@ new ssh2.Server(
       ":",
       client._sock._peername.port
     );
+    var username = defaultUsername;
     client
       .on("error", (e) => {
         console.error("error caught", e);
       })
       .on("authentication", (ctx) => {
+        // console.log("authenticating");
         try {
-          console.log("authenticating");
           // Blindly accept all connections
           ctx.accept();
           username = ctx.username;
@@ -47,27 +46,34 @@ new ssh2.Server(
         }
       })
       .on("ready", () => {
-        console.log("Client authenticated!");
+        // console.log("Client authenticated!");
         client.on("session", function (accept, reject) {
-          console.log("Client wants new session");
+          // console.log("Client wants new session");
           var session = accept();
           session.once("pty", (accept, reject, info) => {
             accept();
           });
           session.once("shell", (accept, reject) => {
-            console.log("Client wants a shell!");
+            // console.log("Client wants a shell!");
             let container = null;
 
             // Accept the connection and get a bidirectional stream.
             const stream = accept();
-
+            stream.name = username;
+            users.push(stream);
+            console.log(
+              username,
+              "joined,",
+              users.length,
+              "users on system now"
+            );
             var cleanupStream = function () {
               if (stream.timeoutId) {
                 clearTimeout(stream.timeoutId);
               }
 
               if (container) {
-                container.remove({ force: true }, function (err, data) {
+                container.remove({ force: true }, function (err, _) {
                   if (err) {
                     console.log(
                       "Error removing container %s: %s",
@@ -143,7 +149,12 @@ new ssh2.Server(
             });
 
             stream.on("end", () => {
-              console.log("Stream disconnected!");
+              if (stream !== undefined) {
+                spliceOne(users, users.indexOf(stream));
+                console.log(stream.name, "left the system,");
+              }
+              // console.log("Stream disconnected!");
+              console.log(users.length, "users left");
               cleanupStream();
             });
           });
@@ -159,3 +170,8 @@ new ssh2.Server(
 ).listen(port, "0.0.0.0", function () {
   console.log("Listening on port " + this.address().port, this.address());
 });
+function spliceOne(list, index) {
+  for (var i = index, k = i + 1, n = list.length; k < n; i += 1, k += 1)
+    list[i] = list[k];
+  list.pop();
+}
